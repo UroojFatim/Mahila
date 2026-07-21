@@ -1,6 +1,6 @@
 import "./globals.css";
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Playfair_Display, Jost, Playball } from "next/font/google";
 import {
   BRAND_NAME,
   DEFAULT_DESCRIPTION,
@@ -8,7 +8,25 @@ import {
   SITE_URL,
 } from "@/lib/seo";
 
-const inter = Inter({ subsets: ["latin"] });
+const playfair = Playfair_Display({
+  subsets: ["latin"],
+  weight: ["500", "600", "700"],
+  style: ["normal", "italic"],
+  variable: "--font-playfair",
+  display: "swap",
+});
+const jost = Jost({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600"],
+  variable: "--font-jost",
+  display: "swap",
+});
+const playball = Playball({
+  subsets: ["latin"],
+  weight: "400",
+  variable: "--font-playball",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -72,7 +90,9 @@ export default function RootLayout({
 
   return (
     <html lang="en">
-      <body className={inter.className}>
+      <body
+        className={`${playfair.variable} ${jost.variable} ${playball.variable} font-sans`}
+      >
         {/* Organization structured data for site-wide SEO */}
         <script
           type="application/ld+json"

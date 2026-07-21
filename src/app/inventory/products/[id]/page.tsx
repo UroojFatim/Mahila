@@ -4,7 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { use, useEffect, useState } from "react";
 import Swal from "sweetalert2";
-import { LoadingSpinner } from "@/components/inventory/LoadingSpinner";
+import { InventoryLoadingSpinner } from "@/components/inventory/InventoryLoadingSpinner";
 import { useInventorySession } from "@/components/inventory/useInventorySession";
 import { ImageUploadInput } from "@/components/inventory/ImageUploadInput";
 import { QRCodeCanvas } from "qrcode.react";
@@ -593,7 +593,7 @@ export default function InventoryProductDetailPage({
   };
 
   if (loading || fetching) {
-    return <LoadingSpinner />;
+    return <InventoryLoadingSpinner />;
   }
 
   if (!authenticated) {

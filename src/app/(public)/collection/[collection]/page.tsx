@@ -2,7 +2,7 @@ import Wrapper from "@/components/shared/Wrapper";
 import AllProductsClient from "@/components/AllProductsClient";
 import { notFound } from "next/navigation";
 import { getDatabase } from "@/lib/mongodb";
-import { getCollectionBySlug } from "@/lib/db/seo";
+import { getCollectionBySlug } from "@/lib/db/productQueries";
 import {
   BRAND_NAME,
   DEFAULT_DESCRIPTION,

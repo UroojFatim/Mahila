@@ -1,4 +1,4 @@
-import { getAllCollectionSlugs, getAllProductSlugs } from "@/lib/db/seo";
+import { getAllCollectionSlugs, getAllProductSlugs } from "@/lib/db/productQueries";
 import { SITE_URL } from "@/lib/seo";
 
 export const revalidate = 3600;
@@ -14,7 +14,11 @@ export async function GET() {
   ]);
 
   const lastmod = new Date().toISOString();
-  const staticUrls = [SITE_URL, `${SITE_URL}/all-products`];
+  const staticUrls = [
+    SITE_URL,
+    `${SITE_URL}/all-products`,
+    `${SITE_URL}/virtual-try-on`,
+  ];
 
   const urls = [
     ...staticUrls.map((url) => buildUrlEntry(url, lastmod)),

@@ -1,30 +1,75 @@
-import Wrapper from "@/components/shared/Wrapper";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import React from "react";
+"use client";
+
+import React, { useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import Reveal from "@/components/motion/Reveal";
+import { EASE } from "@/components/motion/variants";
 
 const Newsletter = () => {
+  const [email, setEmail] = useState("");
+  const [subscribed, setSubscribed] = useState(false);
+
+  const subscribe = () => {
+    if (email.includes("@")) setSubscribed(true);
+  };
+
   return (
-    <Wrapper>
-      <section className="text-center relative py-12 sm:py-16 md:py-20 xl:py-20 px-4">
-        <h1 className="w-full mx-auto absolute left-0 right-0 top-0 md:top-2 lg:top-1 xl:top-2 font-extrabold text-[40px] sm:text-[60px] md:text-[80px] lg:text-[100px] xl:text-[128px] leading-tight md:leading-[151px] text-paragraph opacity-[0.08] pointer-events-none select-none overflow-hidden whitespace-nowrap">
-          Newsletter
-        </h1>
-        <h2 className="font-bold text-2xl sm:text-3xl lg:text-4xl relative z-20 pt-8 sm:pt-6 md:pt-4 lg:pt-0">
-          Subscribe Our Newsletter
+    <section
+      id="contact"
+      className="max-w-[900px] mx-auto px-6 py-16 lg:py-[90px] text-center scroll-mt-24"
+    >
+      <Reveal direction="scale" className="font-script text-2xl lg:text-3xl text-olive mb-3">
+        Join the list
+      </Reveal>
+      <Reveal direction="up" delay={0.05}>
+        <h2 className="font-serif text-2xl lg:text-[28px] text-ink mb-3.5">
+          10% off your first order
         </h2>
-        <p className="font-light tracking-wide mt-3 sm:mt-4 md:mt-5 text-sm sm:text-base px-4 relative z-20">
-          Get the latest information and promo offers directly
-        </p>
-        <div className="flex flex-col sm:flex-row gap-x-3 gap-y-4 items-stretch sm:items-center text-center justify-center mt-6 sm:mt-8 lg:mt-9 xl:mt-11 relative z-20 max-w-md sm:max-w-lg mx-auto px-4 sm:px-0">
-          <Input
-            placeholder="Input email address"
-            className="border-black border w-full sm:flex-1 sm:max-w-[270px] py-5 px-4 rounded-none opacity-70 tracking-tighter text-sm align-middle"
-          />
-          <Button className="text-white px-10 py-5 w-full sm:w-auto whitespace-nowrap">Get Started</Button>
-        </div>
-      </section>
-    </Wrapper>
+      </Reveal>
+      <Reveal direction="up" delay={0.1} className="text-sm text-ink/60 mb-7">
+        Sign up for early access to new arrivals and seasonal edits.
+      </Reveal>
+
+      <AnimatePresence mode="wait">
+        {subscribed ? (
+          <motion.div
+            key="thanks"
+            initial={{ opacity: 0, y: 10, scale: 0.96 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ duration: 0.4, ease: EASE }}
+            className="text-sm text-olive"
+          >
+            Thank you — check your inbox to confirm.
+          </motion.div>
+        ) : (
+          <motion.div
+            key="form"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.35, ease: EASE, delay: 0.15 }}
+            className="flex justify-center max-w-[420px] mx-auto"
+          >
+            <motion.input
+              whileFocus={{ scale: 1.01 }}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && subscribe()}
+              placeholder="Your email address"
+              className="flex-1 border border-ink border-r-0 py-3.5 px-4 text-sm bg-white outline-none focus:border-olive transition-colors"
+            />
+            <motion.button
+              whileHover={{ scale: 1.04 }}
+              whileTap={{ scale: 0.96 }}
+              onClick={subscribe}
+              className="bg-ink text-white px-6 py-3.5 text-xs tracking-[0.08em] uppercase hover:bg-olive transition-colors"
+            >
+              Subscribe
+            </motion.button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </section>
   );
 };
 

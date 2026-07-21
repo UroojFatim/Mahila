@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import Swal from "sweetalert2";
-import { LoadingSpinner } from "@/components/inventory/LoadingSpinner";
+import { InventoryLoadingSpinner } from "@/components/inventory/InventoryLoadingSpinner";
 import { useInventorySession } from "@/components/inventory/useInventorySession";
 
 export default function InventoryCollectionsPage() {
@@ -201,7 +201,7 @@ export default function InventoryCollectionsPage() {
   );
 
   if (loading || fetching) {
-    return <LoadingSpinner />;
+    return <InventoryLoadingSpinner />;
   }
 
   if (!authenticated) {
