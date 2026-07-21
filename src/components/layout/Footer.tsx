@@ -1,77 +1,125 @@
+"use client";
+
 import React from "react";
-import { Instagram, Mail } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Instagram } from "lucide-react";
 import Link from "next/link";
+import Reveal from "@/components/motion/Reveal";
+import { StaggerGroup, StaggerItem } from "@/components/motion/StaggerGroup";
+
 const Footer = () => {
   return (
-    <section className="mt-10 sm:mt-14">
-      <div className="mx-auto mb-8 md:mb-14 flex flex-col lg:flex-row max-w-screen-2xl gap-8 lg:gap-16 px-6 md:px-10 lg:px-12">
-        {/* Left Section - Logo & Description */}
-        <div className="w-full lg:basis-1/2 space-y-6 sm:space-y-8">
+    <footer className="bg-ink text-[#c9c9c1] mt-10 sm:mt-14">
+      <StaggerGroup
+        stagger={0.1}
+        amount={0.15}
+        className="mx-auto max-w-screen-2xl px-6 md:px-10 lg:px-12 py-14 sm:py-16 lg:py-20 grid grid-cols-1 lg:grid-cols-[1.4fr_1fr_1fr_1fr] gap-10 lg:gap-12"
+      >
+        {/* Logo & Description */}
+        <StaggerItem className="space-y-5">
           <img
-            src="/MahilaLogo.png"
+            src="/mahila-logo.png"
             alt="Mahila"
             className="h-14 w-auto object-contain"
+            style={{ filter: "brightness(0) invert(1)" }}
           />
-          <p className="text-paragraph text-sm sm:text-base lg:text-lg leading-relaxed">
-            Timeless grace. Crafted for every moment.
+          <p className="text-sm leading-relaxed max-w-[280px] text-[#9b9b92]">
+            Timeless grace, crafted for every moment — considered womenswear
+            designed in small seasonal batches.
           </p>
-        </div>
+        </StaggerItem>
 
-        {/* Right Section - Follow & Contact */}
-        <div className="w-full lg:basis-1/2 space-y-6">
-          <div className="w-full flex items-center gap-4 text-grey">
-            <h3 className="font-bold text-md sm:text-xl lg:text-xl tracking-wide">
-              Follow us on:
-            </h3>
-            <Link
-              href={"https://www.instagram.com/mahila_studio/"}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <Instagram className="w-5 h-5 sm:w-6 sm:h-6 cursor-pointer hover:opacity-70 transition-opacity" />
-            </Link>
-          </div>
-          <div className="w-full flex items-center gap-3  text-grey">
-            <h3 className="font-bold text-md sm:text-xl lg:text-xl tracking-wide">
-              Contact us on:
-            </h3>
-            <Link
-              href={"mailto:studio@mahila.com"}
-              className="flex items-center gap-2 hover:opacity-70 transition-opacity"
-            >
-              <span className="text-sm sm:text-base lg:text-lg">studio@mahila.com</span>
-            </Link>
-          </div>
-        </div>
-      </div>
+        {/* Shop */}
+        <StaggerItem>
+          <h3 className="text-xs font-medium uppercase tracking-[0.08em] text-cream mb-4">
+            Shop
+          </h3>
+          <ul className="flex flex-col gap-2.5 text-sm">
+            <li>
+              <Link href="/all-products" className="hover:text-white transition-colors">
+                Kalaam Collection
+              </Link>
+            </li>
+            <li>
+              <Link href="/all-products" className="hover:text-white transition-colors">
+                Luxury Collection
+              </Link>
+            </li>
+            <li>
+              <Link href="/all-products" className="hover:text-white transition-colors">
+                Semi Formal Collection
+              </Link>
+            </li>
+            <li>
+              <Link href="/all-products" className="hover:text-white transition-colors">
+                Virasal Collection
+              </Link>
+            </li>
+          </ul>
+        </StaggerItem>
 
-      <div className="border-black border-t-[0.75px] w-full"></div>
+        {/* Help */}
+        <StaggerItem>
+          <h3 className="text-xs font-medium uppercase tracking-[0.08em] text-cream mb-4">
+            Help
+          </h3>
+          <ul className="flex flex-col gap-2.5 text-sm">
+            <li>
+              <a href="#" className="hover:text-white transition-colors">
+                Shipping &amp; Returns
+              </a>
+            </li>
+            <li>
+              <a href="#" className="hover:text-white transition-colors">
+                Size Guide
+              </a>
+            </li>
+            <li>
+              <a href="#" className="hover:text-white transition-colors">
+                Track Order
+              </a>
+            </li>
+            <li>
+              <Link href="/contact" className="hover:text-white transition-colors">
+                Contact Us
+              </Link>
+            </li>
+          </ul>
+        </StaggerItem>
 
-      {/* Bottom */}
-      <div className="mx-auto flex max-w-screen-2xl flex-col gap-3 px-6 md:px-10 py-4 text-[#666] sm:flex-row sm:items-center sm:justify-between sm:py-5 lg:px-8">
-        <div className="text-xs sm:text-sm md:text-base">
-          Copyright © 2026 Mahila. All Rights Reserved.
-        </div>
-        {/* <div className="text-xs sm:text-sm md:text-base">
-          Design by. <b className="text-black">xyz Design Studio</b>
-        </div> */}
-        <div className="text-xs sm:text-sm md:text-base">
-          Powered by.{" "}
-          <b className="text-black">
-            {" "}
+        {/* Contact */}
+        <StaggerItem>
+          <h3 className="text-xs font-medium uppercase tracking-[0.08em] text-cream mb-4">
+            Contact
+          </h3>
+          <div className="flex flex-col gap-2.5 text-sm text-[#9b9b92]">
             <a
-              href="https://jinnah.edu/"
+              href="mailto:aivirtualtryonmirror@gmail.com"
+              className="hover:text-white transition-colors"
+            >
+              aivirtualtryonmirror@gmail.com
+            </a>
+            <Link
+              href="https://www.instagram.com/mahila_studio/"
               target="_blank"
               rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 hover:text-white hover:translate-x-1 transition-all"
             >
-              MAJU
-            </a>
-          </b>
+              <Instagram className="w-4 h-4" />
+              @mahila_studio
+            </Link>
+          </div>
+        </StaggerItem>
+      </StaggerGroup>
+
+      <Reveal direction="fade" className="border-t border-[#333]">
+        <div className="mx-auto max-w-screen-2xl px-6 md:px-10 lg:px-12 py-5 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between text-xs text-[#7a7a72]">
+          <span>© 2026 Mahila. All rights reserved.</span>
+          <span>
+            Made for those who dress with intention.
+          </span>
         </div>
-      </div>
-    </section>
+      </Reveal>
+    </footer>
   );
 };
 
