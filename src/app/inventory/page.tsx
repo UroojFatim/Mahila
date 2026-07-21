@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
-import { LoadingSpinner } from "@/components/inventory/LoadingSpinner";
+import { InventoryLoadingSpinner } from "@/components/inventory/InventoryLoadingSpinner";
 import { useInventorySession } from "@/components/inventory/useInventorySession";
 
 const statCards = [
@@ -98,7 +98,7 @@ export default function InventoryDashboardPage() {
   }, [authenticated, statsLoaded, fetchStats]);
 
   if (loading) {
-    return <LoadingSpinner />;
+    return <InventoryLoadingSpinner />;
   }
 
   if (!authenticated) {

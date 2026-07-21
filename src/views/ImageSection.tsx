@@ -3,6 +3,7 @@
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { motion } from "framer-motion";
 
 interface ImageSectionProps {
   desktopSrc: string;
@@ -24,39 +25,61 @@ export default function ImageSection({
   return (
     <div className="relative w-full h-screen overflow-hidden">
       {/* Mobile */}
-      <Image
-        src={mobileSrc}
-        alt={alt}
-        fill
-        priority
-        sizes="100vw"
-        quality={100}
-        className="object-cover object-[center_30%] md:hidden block"
-      />
+      <motion.div
+        initial={{ scale: 1.08, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ duration: 1.4, ease: [0.16, 1, 0.3, 1] }}
+        className="absolute inset-0 md:hidden block"
+      >
+        <Image
+          src={mobileSrc}
+          alt={alt}
+          fill
+          priority
+          sizes="100vw"
+          quality={100}
+          className="object-cover object-[center_30%]"
+        />
+      </motion.div>
 
       {/* Desktop */}
-      <Image
-        src={desktopSrc}
-        alt={alt}
-        fill
-        priority
-        sizes="100vw" // ✅ FIXED
-        quality={100} // prevents compression blur
-        className="object-cover object-[center_10%] hidden md:block"
-      />
+      <motion.div
+        initial={{ scale: 1.08, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ duration: 1.4, ease: [0.16, 1, 0.3, 1] }}
+        className="absolute inset-0 hidden md:block"
+      >
+        <Image
+          src={desktopSrc}
+          alt={alt}
+          fill
+          priority
+          sizes="100vw"
+          quality={100}
+          className="object-cover object-[center_10%]"
+        />
+      </motion.div>
 
       {shopNow && (
-        <div className="absolute inset-x-0 bottom-10 flex justify-center transition hover:translate-y-[-1px]">
-          <div className="border-2 border-white">
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
+          className="absolute inset-x-0 bottom-10 flex justify-center"
+        >
+          <motion.div
+            whileHover={{ y: -2 }}
+            className="border border-cream"
+          >
             <Link
               href={`/collection/${collectionSlug}`}
-              className="inline-flex items-center m-1 justify-center bg-black px-8 py-3 text-sm font-semibold uppercase tracking-widest text-white "
+              className="inline-flex items-center m-1 justify-center bg-ink px-8 py-3.5 text-[13px] tracking-[0.08em] uppercase text-cream transition-colors hover:bg-olive"
               aria-label={`Shop ${collectionName}`}
             >
               Shop Now
             </Link>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       )}
     </div>
   );

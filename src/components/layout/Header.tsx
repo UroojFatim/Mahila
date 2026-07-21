@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { AnimatePresence, motion } from "framer-motion";
 import {
   Sheet,
   SheetContent,
@@ -11,10 +12,11 @@ import {
   SheetTitle,
   SheetDescription,
 } from "@/components/ui/sheet";
-import { Search, Menu, X } from "lucide-react";
+import { Search, Menu, User, X } from "lucide-react";
 import Wrapper from "../shared/Wrapper";
 import CartButton from "../CartButton";
 import { Input } from "@/components/ui/input";
+import AnnouncementBar from "./AnnouncementBar";
 
 interface NavItem {
   label: string;
@@ -27,10 +29,17 @@ const Header = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [products, setProducts] = useState<any[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<any[]>([]);
-  const [isScrolled, setIsScrolled] = useState(false);
   const [styles, setStyles] = useState<NavItem[]>([]);
   const [collections, setCollections] = useState<NavItem[]>([]);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 12);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   const handleNavigate = (href: string) => {
     setIsSheetOpen(false);
@@ -43,27 +52,12 @@ const Header = () => {
     const img = product?.images?.[0];
     if (typeof img === "string") return img;
     if (img?.url) return img.url;
-    if (img?.asset?.url) return img.asset.url;
     const variantImg = product?.variants?.[0]?.images?.[0];
     if (typeof variantImg === "string") return variantImg;
     if (variantImg?.url) return variantImg.url;
     if (variantImg?.asset?.url) return variantImg.asset.url;
     return "/products/placeholder.jpg";
   };
-
-  // Handle scroll event
-  useEffect(() => {
-    const handleScroll = () => {
-      if (window.scrollY > 0) {
-        setIsScrolled(true);
-      } else {
-        setIsScrolled(false);
-      }
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
 
   // Fetch collections and styles from MongoDB
   useEffect(() => {
@@ -141,74 +135,6 @@ const Header = () => {
     }
   }, [searchQuery, products]);
 
-  const SearchDropdown = () => (
-    <div className="absolute top-12 left-0 w-80 bg-white border border-black/20 rounded-lg shadow-lg z-50 p-4">
-      <div className="flex items-center gap-2 mb-3">
-        <Input
-          type="text"
-          placeholder="Search products..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="flex-1 border border-black/20 rounded py-2 px-3 text-sm focus:outline-none focus:border-[#212121]"
-          autoFocus
-        />
-        <button
-          onClick={() => {
-            setShowSearch(false);
-            setSearchQuery("");
-          }}
-          className="p-1 hover:bg-gray-100 rounded"
-        >
-          <X className="h-4 w-4" />
-        </button>
-      </div>
-
-      {/* Search Results */}
-      {searchQuery.trim() !== "" && (
-        <div className="max-h-96 overflow-y-auto">
-          {filteredProducts.length === 0 ? (
-            <p className="text-sm text-gray-500 py-4">No products found</p>
-          ) : (
-            <div className="space-y-2">
-              {filteredProducts.slice(0, 5).map((product) => (
-                <Link
-                  key={product._id}
-                  href={`/product/${product.slug}`}
-                  onClick={() => {
-                    setShowSearch(false);
-                    setSearchQuery("");
-                  }}
-                  className="flex gap-3 p-2 hover:bg-gray-50 rounded cursor-pointer transition"
-                >
-                  <Image
-                    src={getProductImage(product)}
-                    alt={product.title}
-                    width={50}
-                    height={50}
-                    className="rounded object-cover"
-                  />
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold truncate">
-                      {product.title}
-                    </p>
-                    <p className="text-xs text-gray-500">
-                      Rs. {Number(product.basePrice || 0)}
-                    </p>
-                  </div>
-                </Link>
-              ))}
-              {filteredProducts.length > 5 && (
-                <p className="text-xs text-gray-500 py-2 text-center">
-                  +{filteredProducts.length - 5} more results
-                </p>
-              )}
-            </div>
-          )}
-        </div>
-      )}
-    </div>
-  );
-
   // Close search when clicking outside
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -227,183 +153,250 @@ const Header = () => {
     };
   }, [showSearch]);
 
-  return (
-    <header
-      className={`fixed top-0 inset-x-0 z-50 transition-colors duration-300 ${isScrolled ? "bg-white shadow-md" : "bg-transparent"}`}
-    >
-      <Wrapper>
-        <div className="flex items-center justify-between py-4 lg:py-5">
-          {/* LEFT: Hamburger + Logo */}
-          <div className="flex items-center gap-3">
-            <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
-              <SheetTrigger aria-label="Open menu" className="p-2">
-                <Menu className="h-6 w-6 text-black" />
-              </SheetTrigger>
+  const desktopNavItems: NavItem[] = [
+    { label: "Home", href: "/" },
+    { label: "Shop", href: "/all-products" },
+    ...collections.slice(0, 2),
+    { label: "AI Try-On", href: "/virtual-try-on" },
+    { label: "Contact", href: "/contact" },
+  ];
 
-              <SheetContent side="left" className="bg-white overflow-y-auto">
-                <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
-                <SheetDescription className="sr-only">
-                  Browse our collections and styles
-                </SheetDescription>
-                <div className="flex items-center gap-2 mt-2">
-                  <img
-                    src="/MahilaLogo.png"
-                    alt="Mahila"
-                    className="h-28 w-auto object-contain"
+  return (
+    <>
+      <AnnouncementBar />
+      <header
+        className={`sticky top-0 z-50 bg-cream border-b border-hairline isolate transition-shadow duration-300 ${
+          scrolled ? "shadow-md" : "shadow-sm"
+        }`}
+        style={{ backgroundColor: "#F7F3EC" }}
+      >
+        <Wrapper>
+          <div
+            className={`flex items-center justify-between gap-4 transition-[padding] duration-300 ${
+              scrolled ? "py-2 lg:py-2.5" : "py-3 lg:py-3.5"
+            }`}
+          >
+            {/* LEFT: Hamburger + Logo */}
+            <div className="flex items-center gap-3">
+              <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
+                <SheetTrigger
+                  aria-label="Open menu"
+                  className="p-2 lg:hidden"
+                >
+                  <motion.span
+                    animate={{ rotate: isSheetOpen ? 90 : 0 }}
+                    transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+                    className="block"
+                  >
+                    {isSheetOpen ? (
+                      <X className="h-6 w-6 text-ink" />
+                    ) : (
+                      <Menu className="h-6 w-6 text-ink" />
+                    )}
+                  </motion.span>
+                </SheetTrigger>
+
+                <SheetContent side="left" className="bg-cream overflow-y-auto">
+                  <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
+                  <SheetDescription className="sr-only">
+                    Browse our collections and styles
+                  </SheetDescription>
+                  <div className="flex items-center gap-2 mt-2">
+                    <img
+                      src="/mahila-logo.png"
+                      alt="Mahila"
+                      className="h-20 w-auto object-contain"
+                    />
+                  </div>
+
+                  <motion.nav
+                    className="mt-8 space-y-6"
+                    initial="hidden"
+                    animate="visible"
+                    variants={{
+                      visible: { transition: { staggerChildren: 0.05 } },
+                    }}
+                  >
+                    {desktopNavItems.map((item) => (
+                      <motion.button
+                        key={item.href}
+                        variants={{
+                          hidden: { opacity: 0, x: -16 },
+                          visible: { opacity: 1, x: 0 },
+                        }}
+                        onClick={() => handleNavigate(item.href)}
+                        className="block w-full text-left text-sm font-medium uppercase tracking-wider text-ink hover:text-olive hover:translate-x-1 transition"
+                      >
+                        {item.label}
+                      </motion.button>
+                    ))}
+
+                    {collections.length > 0 && (
+                      <motion.div
+                        variants={{
+                          hidden: { opacity: 0 },
+                          visible: { opacity: 1 },
+                        }}
+                        className="pt-4 border-t border-hairline"
+                      >
+                        <h3 className="text-xs font-medium uppercase tracking-wider text-ink/60 mb-3">
+                          Collections
+                        </h3>
+                        <ul className="flex flex-col gap-2">
+                          {collections.map((item) => (
+                            <li key={item.href}>
+                              <button
+                                onClick={() => handleNavigate(item.href)}
+                                className="block py-1.5 text-base text-ink/80 hover:text-olive hover:translate-x-1 transition-all w-full text-left"
+                              >
+                                {item.label}
+                              </button>
+                            </li>
+                          ))}
+                        </ul>
+                      </motion.div>
+                    )}
+                  </motion.nav>
+                </SheetContent>
+              </Sheet>
+
+              <Link href="/" className="flex items-center">
+                <motion.img
+                  whileHover={{ scale: 1.04 }}
+                  transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+                  src="/mahila-logo.png"
+                  alt="Mahila"
+                  className="h-12 lg:h-[52px] w-auto object-contain"
+                />
+              </Link>
+            </div>
+
+            {/* CENTER: Desktop nav */}
+            <nav className="hidden lg:flex items-center gap-8 text-sm tracking-[0.03em] flex-shrink-0">
+              {desktopNavItems.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className="group relative text-ink/80 hover:text-olive transition-colors pb-[3px]"
+                >
+                  {item.label}
+                  <span className="absolute left-0 -bottom-0.5 h-px w-full origin-left scale-x-0 bg-olive transition-transform duration-300 ease-out group-hover:scale-x-100" />
+                </Link>
+              ))}
+            </nav>
+
+            {/* RIGHT: Search + Account + Cart */}
+            <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
+              <div className="search-container relative flex items-center">
+                <div
+                  className={`flex items-center transition-all duration-300 ${
+                    showSearch ? "w-48 sm:w-64" : "w-0"
+                  } overflow-hidden bg-white`}
+                >
+                  <Input
+                    type="text"
+                    placeholder="Search products..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full border border-hairline rounded-none py-2 px-3 text-sm focus:outline-none focus:border-olive bg-white h-9"
+                    style={{ visibility: showSearch ? "visible" : "hidden" }}
+                    autoFocus={showSearch}
                   />
                 </div>
 
-                <nav className="mt-8 space-y-6">
-                  {/* All Products Link */}
-                  <button
-                    onClick={() => handleNavigate("/all-products")}
-                    className="text-sm font-bold text-gray-900 uppercase tracking-wider mb-3 w-full text-left"
-                  >
-                    All Products
-                  </button>
+                <motion.button
+                  whileHover={{ scale: 1.08 }}
+                  whileTap={{ scale: 0.92 }}
+                  onClick={() => {
+                    if (showSearch) {
+                      setShowSearch(false);
+                      setSearchQuery("");
+                    } else {
+                      setShowSearch(true);
+                    }
+                  }}
+                  aria-label="Search"
+                  className="p-2 rounded-full hover:bg-ink/5 transition flex-shrink-0 z-10"
+                >
+                  <Search className="h-[18px] w-[18px] text-ink" strokeWidth={1.6} />
+                </motion.button>
 
-                  {/* Styles Section */}
-                  {/* {styles.length > 0 && (
-                    <div>
-                      <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider mb-3">
-                        Styles
-                      </h3>
-                      <ul className="flex flex-col gap-2">
-                        {styles.map((item) => (
-                          <li key={item.href}>
-                            <Link
-                              href={item.href}
-                              className="block py-1.5 text-base text-gray-700 hover:text-sky-600 transition-colors"
+                {/* Search Dropdown Results */}
+                <AnimatePresence>
+                  {showSearch && searchQuery.trim() !== "" && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -8, scale: 0.98 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: -8, scale: 0.98 }}
+                      transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                      className="absolute top-12 right-0 sm:left-0 w-80 max-w-[85vw] bg-white border border-hairline shadow-lg z-50 p-4"
+                    >
+                      {filteredProducts.length === 0 ? (
+                        <p className="text-sm text-ink/50 py-4">
+                          No products found
+                        </p>
+                      ) : (
+                        <div className="space-y-2">
+                          {filteredProducts.slice(0, 5).map((product, i) => (
+                            <motion.div
+                              key={product._id}
+                              initial={{ opacity: 0, x: -8 }}
+                              animate={{ opacity: 1, x: 0 }}
+                              transition={{ duration: 0.2, delay: i * 0.04 }}
                             >
-                              {item.label}
-                            </Link>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )} */}
-
-                  {/* Collections Section */}
-                  {collections.length > 0 && (
-                    <div>
-                      <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider mb-3">
-                        Collections
-                      </h3>
-                      <ul className="flex flex-col gap-2">
-                        {collections.map((item) => (
-                          <li key={item.href}>
-                            <button
-                              onClick={() => handleNavigate(item.href)}
-                              className="block py-1.5 text-base text-gray-700 hover:text-sky-600 transition-colors w-full text-left"
-                            >
-                              {item.label}
-                            </button>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
+                              <Link
+                                href={`/product/${product.slug}`}
+                                onClick={() => {
+                                  setShowSearch(false);
+                                  setSearchQuery("");
+                                }}
+                                className="flex gap-3 p-2 hover:bg-cream rounded cursor-pointer transition"
+                              >
+                                <Image
+                                  src={getProductImage(product)}
+                                  alt={product.title}
+                                  width={50}
+                                  height={50}
+                                  className="object-cover"
+                                />
+                                <div className="flex-1 min-w-0">
+                                  <p className="text-sm font-medium truncate text-ink">
+                                    {product.title}
+                                  </p>
+                                  <p className="text-xs text-olive">
+                                    Rs. {Number(product.basePrice || 0)}
+                                  </p>
+                                </div>
+                              </Link>
+                            </motion.div>
+                          ))}
+                          {filteredProducts.length > 5 && (
+                            <p className="text-xs text-ink/50 py-2 text-center">
+                              +{filteredProducts.length - 5} more results
+                            </p>
+                          )}
+                        </div>
+                      )}
+                    </motion.div>
                   )}
-                </nav>
-              </SheetContent>
-            </Sheet>
-
-            <Link href="/" className="flex items-center">
-              <img
-                src="/MahilaLogo.png"
-                alt="Mahila"
-                className="h-14 lg:h-16 w-auto object-contain"
-              />
-            </Link>
-          </div>
-
-          {/* RIGHT: Search + Cart */}
-          <div className="flex items-center gap-2">
-            {/* Animated Search Bar */}
-            <div className="search-container relative flex items-center">
-              <div
-                className={`flex items-center transition-all duration-300 ${
-                  showSearch ? "w-64" : "w-0"
-                } overflow-hidden bg-white rounded-lg`}
-              >
-                <Input
-                  type="text"
-                  placeholder="Search products..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full border border-black/20 rounded-lg py-4 px-4 text-sm focus:outline-none focus:border-[#212121] bg-white"
-                  style={{ visibility: showSearch ? "visible" : "hidden" }}
-                />
+                </AnimatePresence>
               </div>
 
-              <button
-                onClick={() => {
-                  if (showSearch) {
-                    setShowSearch(false);
-                    setSearchQuery("");
-                  } else {
-                    setShowSearch(true);
-                  }
-                }}
-                aria-label="Search"
-                className="p-2 rounded-full hover:bg-white/40 transition flex-shrink-0 z-10"
+              <span
+                title="Account"
+                className="hidden sm:flex p-2 rounded-full hover:bg-ink/5 transition cursor-pointer"
               >
-                <Search className="h-6 w-6 text-black" />
-              </button>
+                <User className="h-[18px] w-[18px] text-ink" strokeWidth={1.6} />
+              </span>
 
-              {/* Search Dropdown Results */}
-              {showSearch && searchQuery.trim() !== "" && (
-                <div className="absolute top-12 left-0 w-80 bg-white border border-black/20 rounded-lg shadow-lg z-50 p-4">
-                  {filteredProducts.length === 0 ? (
-                    <p className="text-sm text-gray-500 py-4">
-                      No products found
-                    </p>
-                  ) : (
-                    <div className="space-y-2">
-                      {filteredProducts.slice(0, 5).map((product) => (
-                        <Link
-                          key={product._id}
-                          href={`/product/${product.slug}`}
-                          onClick={() => {
-                            setShowSearch(false);
-                            setSearchQuery("");
-                          }}
-                          className="flex gap-3 p-2 hover:bg-gray-50 rounded cursor-pointer transition"
-                        >
-                          <Image
-                            src={getProductImage(product)}
-                            alt={product.title}
-                            width={50}
-                            height={50}
-                            className="rounded object-cover"
-                          />
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-semibold truncate">
-                              {product.title}
-                            </p>
-                            <p className="text-xs text-gray-500">
-                              Rs. {Number(product.basePrice || 0)}
-                            </p>
-                          </div>
-                        </Link>
-                      ))}
-                      {filteredProducts.length > 5 && (
-                        <p className="text-xs text-gray-500 py-2 text-center">
-                          +{filteredProducts.length - 5} more results
-                        </p>
-                      )}
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-
-            <div className="relative h-10 w-10 rounded-full flex justify-center items-center text-brand-navy hover:text-brand-navy/70 transition">
-              <CartButton />
+              <div className="relative flex justify-center items-center text-ink">
+                <CartButton />
+              </div>
             </div>
           </div>
-        </div>
-      </Wrapper>
-    </header>
+        </Wrapper>
+      </header>
+    </>
   );
 };
 

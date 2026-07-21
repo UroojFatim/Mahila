@@ -5,7 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import Swal from "sweetalert2";
 import { RichTextInput } from "@/components/inventory/RichTextInput";
 import { ImageUploadInput } from "@/components/inventory/ImageUploadInput";
-import { LoadingSpinner } from "@/components/inventory/LoadingSpinner";
+import { InventoryLoadingSpinner } from "@/components/inventory/InventoryLoadingSpinner";
 import { useInventorySession } from "@/components/inventory/useInventorySession";
 
 const createDetail = () => ({ key: "", valueHtml: "" });
@@ -357,7 +357,7 @@ export default function AddInventoryProductPage() {
   };
 
   if (loading) {
-    return <LoadingSpinner />;
+    return <InventoryLoadingSpinner />;
   }
 
   if (!authenticated) {

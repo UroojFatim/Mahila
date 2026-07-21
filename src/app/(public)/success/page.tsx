@@ -22,16 +22,16 @@ const SuccessPage = () => {
 
   return (
     <Wrapper>
-      <div className="flex flex-col justify-center items-center w-full py-24 mt-20 gap-5 rounded-xl bg-[#f1f1f1]">
+      <div className="flex flex-col justify-center items-center w-full py-24 mt-16 gap-5 bg-tint-1">
         <p className="icon">
           <svg
-            color="green"
+            color="#47523A"
             stroke="currentColor"
             fill="currentColor"
             strokeWidth="0"
             viewBox="0 0 16 16"
-            height="80"
-            width="80"
+            height="70"
+            width="70"
             xmlns="http://www.w3.org/2000/svg"
           >
             <path
@@ -40,20 +40,19 @@ const SuccessPage = () => {
             ></path>
           </svg>
         </p>
-        <h1 className="text-5xl font-bold">Thank you for your order!</h1>
-        <p className="font-medium">Check your email inbox for the receipt</p>
-        <p className="font-medium mt-2 ">
-          If you have any questions, please email 
-          <button className="text-brand-navy ml-1">
-            <a href="mailto:studio@mahila.com">
-              studio@mahila.com
-            </a>
-          </button>
+        <h1 className="font-serif text-3xl sm:text-4xl text-ink">
+          Thank you for your order!
+        </h1>
+        <p className="text-sm text-ink/60">
+          Check your email inbox for the receipt
         </p>
-        <Button 
-          onClick={handleContinueShopping} 
-          className="text-white mt-1 rounded-lg px-28 py-6 text-xl"
-        >
+        <p className="text-sm text-ink/60 mt-1">
+          If you have any questions, please email{" "}
+          <a href="mailto:aivirtualtryonmirror@gmail.com" className="text-olive underline">
+            aivirtualtryonmirror@gmail.com
+          </a>
+        </p>
+        <Button onClick={handleContinueShopping} className="mt-3 h-[52px] px-16">
           Continue Shopping
         </Button>
       </div>

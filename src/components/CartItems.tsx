@@ -2,12 +2,16 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import React, { useEffect, useMemo, useState } from "react";
 import Wrapper from "@/components/shared/Wrapper";
-import LoadingSpinner from "@/components/LoadingSpinner";
+import DotsLoadingSpinner from "@/components/DotsLoadingSpinner";
 import { Button } from "@/components/ui/button";
 import { ShoppingBag, Trash2 } from "lucide-react";
 import { useCart } from "@/components/CartContext";
+import { AnimatePresence, motion } from "framer-motion";
+import Reveal from "@/components/motion/Reveal";
+import { EASE } from "@/components/motion/variants";
 
 const titleCase = (value: string) =>
   value
@@ -157,18 +161,25 @@ export default function CartItems() {
 
   return (
     <Wrapper>
-      <section className="px-2 my-28 lg:my-32">
-        <h1 className="font-bold text-xl sm:text-2xl lg:text-3xl">
-          Shopping Cart
+      <section className="px-2 my-16 lg:my-20">
+        <h1 className="font-serif text-2xl sm:text-[28px] lg:text-[30px] text-ink mb-2">
+          Your Bag
         </h1>
 
         {loading ? (
           <div className="mt-8 sm:mt-12">
-            <LoadingSpinner />
+            <DotsLoadingSpinner />
           </div>
         ) : products.length > 0 ? (
-          <div className="flex flex-col lg:flex-row mt-4 sm:mt-6 lg:mt-8 gap-6 lg:gap-10">
-            <div className="w-full lg:basis-[70%]">
+          <div className="flex flex-col lg:flex-row mt-6 lg:mt-8 gap-8 lg:gap-14 items-start">
+            <div className="w-full lg:flex-1">
+              <div className="hidden sm:grid grid-cols-[96px_1fr_auto_auto] gap-5 border-b border-hairline pb-2.5 mb-1 text-[11px] tracking-[0.08em] uppercase text-ink/40">
+                <span></span>
+                <span>Item</span>
+                <span>Quantity</span>
+                <span>Total</span>
+              </div>
+              <AnimatePresence initial={false}>
               {products.map((item) => {
                 const key = getRowKey(item);
                 const q = quantities[key] ?? 1;
@@ -181,153 +192,179 @@ export default function CartItems() {
                 const color = item.product_color ?? "—";
 
                 return (
-                  <div
-                    className="flex flex-col sm:flex-row p-4 sm:p-6 lg:p-7 gap-4 sm:gap-6 lg:gap-8 border-b"
+                  <motion.div
+                    layout
+                    initial={{ opacity: 0, y: 16 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, x: -24, height: 0, marginBottom: 0, paddingTop: 0, paddingBottom: 0 }}
+                    transition={{ duration: 0.35, ease: EASE }}
+                    className="flex flex-col sm:grid sm:grid-cols-[96px_1fr_auto_auto] gap-4 sm:gap-5 items-start sm:items-center py-6 border-b border-hairline overflow-hidden"
                     key={key}
                   >
-                    <div className="relative w-full sm:w-40 md:w-44 lg:w-48 aspect-[3/4]">
+                    <div className="relative w-24 h-28 bg-tint-1 flex-shrink-0">
                       <Image
                         src={item.image_url}
                         fill
-                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 160px, 192px"
-                        className="rounded-lg object-cover"
+                        sizes="96px"
+                        className="object-cover"
                         alt={item.product_title}
                       />
                     </div>
 
                     <div className="w-full">
-                      <div className="text-base sm:text-lg lg:text-xl font-semibold flex items-start justify-between gap-3 sm:gap-4">
-                        <div className="flex-1 min-w-0">
-                          <div className="leading-tight line-clamp-2">
-                            {item.product_title}
-                          </div>
-
-                          {/* ✅ variants show */}
-                          <div className="mt-2 flex flex-wrap gap-1.5 sm:gap-2">
-                            <span className="text-xs bg-gray-100 px-2 py-1 rounded">
-                              Size: {size}
-                            </span>
-                            <span className="text-xs bg-gray-100 px-2 py-1 rounded">
-                              Color: {color}
-                            </span>
-                          </div>
-                        </div>
-
-                        <button
-                          onClick={(e) => {
-                            e.preventDefault();
-                            deleteProduct(key);
-                          }}
-                          aria-label="Remove item"
-                          className="flex-shrink-0 p-1 hover:bg-gray-100 rounded transition"
-                        >
-                          <Trash2 className="h-5 w-5 sm:h-6 sm:w-6" />
-                        </button>
+                      <div className="text-[15px] text-ink leading-tight line-clamp-2">
+                        {item.product_title}
                       </div>
-
-                      <h2 className="mt-2 sm:mt-4 text-sm sm:text-base text-gray-500 font-medium">
-                        {titleCase(item.product_category)}
+                      <div className="mt-1.5 text-xs text-ink/50">
+                        Size {size}
+                        {color !== "—" ? ` · ${color}` : ""}
+                      </div>
+                      <h2 className="mt-1.5 text-xs uppercase tracking-[0.04em] text-ink/40">
+                        {titleCase(item.product_category || "")}
                       </h2>
-
-                      <div className="mt-2 sm:mt-4 text-base sm:text-lg flex items-center justify-between">
-                        <div className="flex flex-col gap-1">
-                          <span className="text-xl font-bold">
-                            {" "}
-                            Rs. {price}
-                          </span>
-                        </div>
-
-                        <section className="flex items-center gap-x-2 border rounded-lg p-1 bg-gray-50">
-                          <div
-                            className="border rounded-full h-7 w-7 sm:h-8 sm:w-8 flex items-center justify-center bg-slate-200 hover:bg-slate-300 text-lg sm:text-xl cursor-pointer select-none transition"
-                            onClick={async () => {
-                              const newQ = q - 1;
-                              if (newQ >= 1) {
-                                setQuantities((prev) => ({
-                                  ...prev,
-                                  [key]: newQ,
-                                }));
-                                // ✅ Update backend
-                                await fetch("/api/cart", {
-                                  method: "PATCH",
-                                  headers: {
-                                    "Content-Type": "application/json",
-                                  },
-                                  body: JSON.stringify({
-                                    user_id: userId,
-                                    row_key: key,
-                                    product_quantity: newQ,
-                                  }),
-                                });
-                                // ✅ Refresh cart context to update header count
-                                await refreshCart();
-                              }
-                            }}
-                          >
-                            -
-                          </div>
-
-                          <span className="min-w-[24px] sm:min-w-[28px] text-center font-semibold text-sm sm:text-base">
-                            {q}
-                          </span>
-
-                          <div
-                            className="border rounded-full h-7 w-7 sm:h-8 sm:w-8 flex items-center justify-center bg-slate-200 hover:bg-slate-300 text-lg sm:text-xl cursor-pointer select-none transition"
-                            onClick={async () => {
-                              const newQ = q + 1;
-                              setQuantities((prev) => ({
-                                ...prev,
-                                [key]: newQ,
-                              }));
-                              // ✅ Update backend
-                              await fetch("/api/cart", {
-                                method: "PATCH",
-                                headers: { "Content-Type": "application/json" },
-                                body: JSON.stringify({
-                                  user_id: userId,
-                                  row_key: key,
-                                  product_quantity: newQ,
-                                }),
-                              });
-                              // ✅ Refresh cart context to update header count
-                              await refreshCart();
-                            }}
-                          >
-                            +
-                          </div>
-                        </section>
-                      </div>
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          deleteProduct(key);
+                        }}
+                        className="mt-2 text-xs text-brick underline"
+                      >
+                        Remove
+                      </button>
                     </div>
-                  </div>
+
+                    <div className="flex items-center border border-ink h-10">
+                      <button
+                        className="w-9 h-full flex items-center justify-center"
+                        onClick={async () => {
+                          const newQ = q - 1;
+                          if (newQ >= 1) {
+                            setQuantities((prev) => ({
+                              ...prev,
+                              [key]: newQ,
+                            }));
+                            await fetch("/api/cart", {
+                              method: "PATCH",
+                              headers: {
+                                "Content-Type": "application/json",
+                              },
+                              body: JSON.stringify({
+                                user_id: userId,
+                                row_key: key,
+                                product_quantity: newQ,
+                              }),
+                            });
+                            await refreshCart();
+                          }
+                        }}
+                      >
+                        −
+                      </button>
+                      <span className="w-8 text-center text-sm overflow-hidden inline-flex justify-center">
+                        <AnimatePresence mode="popLayout" initial={false}>
+                          <motion.span
+                            key={q}
+                            initial={{ y: -10, opacity: 0 }}
+                            animate={{ y: 0, opacity: 1 }}
+                            exit={{ y: 10, opacity: 0 }}
+                            transition={{ duration: 0.18 }}
+                            className="inline-block"
+                          >
+                            {q}
+                          </motion.span>
+                        </AnimatePresence>
+                      </span>
+                      <button
+                        className="w-9 h-full flex items-center justify-center"
+                        onClick={async () => {
+                          const newQ = q + 1;
+                          setQuantities((prev) => ({
+                            ...prev,
+                            [key]: newQ,
+                          }));
+                          await fetch("/api/cart", {
+                            method: "PATCH",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({
+                              user_id: userId,
+                              row_key: key,
+                              product_quantity: newQ,
+                            }),
+                          });
+                          await refreshCart();
+                        }}
+                      >
+                        +
+                      </button>
+                    </div>
+
+                    <div className="text-[15px] text-ink whitespace-nowrap">
+                      Rs. {subtotal}
+                    </div>
+                  </motion.div>
                 );
               })}
-            </div>
+              </AnimatePresence>
 
-            <div className="bg-blue-50 w-full lg:basis-[30%] p-6 sm:p-7 lg:p-9 space-y-4 sm:space-y-6 lg:space-y-7 h-fit rounded-lg sticky top-24">
-              <h2 className="text-lg sm:text-xl font-bold">Order Summary</h2>
-              <div className="text-base sm:text-lg flex">
-                Quantity:{" "}
-                <span className="font-semibold ml-1">{totalQuantity}</span>
-              </div>
-              <div className="text-base sm:text-lg">
-                Sub Total:{" "}
-                <span className="font-bold">Rs. {totalSubtotal}</span>
-              </div>
-
-              <Button
-                className="text-white w-full py-3 text-sm sm:text-base"
+              <Link
+                href="/all-products"
+                className="inline-block mt-6 text-sm text-olive underline"
               >
-                Proceed To Checkout
-              </Button>
+                ← Continue Shopping
+              </Link>
             </div>
+
+            <Reveal
+              direction="right"
+              className="bg-tint-1 w-full lg:w-[340px] flex-shrink-0 p-7 sm:p-8 space-y-4 sticky top-24"
+            >
+              <div className="font-serif text-xl text-ink mb-1">
+                Order Summary
+              </div>
+              <div className="flex justify-between text-sm text-ink/70">
+                <span>Quantity</span>
+                <span className="font-medium text-ink">{totalQuantity}</span>
+              </div>
+              <div className="flex justify-between text-[17px] font-serif text-ink border-t border-hairline pt-4">
+                <span>Total</span>
+                <motion.span key={totalSubtotal} initial={{ opacity: 0.4 }} animate={{ opacity: 1 }}>
+                  Rs. {totalSubtotal}
+                </motion.span>
+              </div>
+
+              <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                <Button className="w-full h-[52px]">Proceed To Checkout</Button>
+              </motion.div>
+              <div className="text-[11px] text-ink/50 text-center pt-1">
+                Free returns within 7 days
+              </div>
+            </Reveal>
           </div>
         ) : (
-          <div className="flex-col items-center flex mt-8 sm:mt-12 text-center px-4">
-            <ShoppingBag className="h-20 w-20 sm:h-28 sm:w-28 lg:h-32 lg:w-32 text-gray-400" />
-            <p className="font-bold text-xl sm:text-2xl lg:text-3xl mt-4 mb-6 sm:mb-9">
-              Your shopping bag is empty
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, ease: EASE }}
+            className="flex-col items-center flex mt-12 text-center px-4 py-8"
+          >
+            <motion.div
+              animate={{ y: [0, -8, 0] }}
+              transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+            >
+              <ShoppingBag className="h-20 w-20 text-ink/20" strokeWidth={1.2} />
+            </motion.div>
+            <p className="text-base text-ink/60 mt-5 mb-7">
+              Your bag is empty.
             </p>
-          </div>
+            <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}>
+              <Link
+                href="/all-products"
+                className="inline-block bg-ink text-cream px-9 py-3.5 text-[13px] tracking-[0.08em] uppercase hover:bg-olive transition-colors"
+              >
+                Continue Shopping
+              </Link>
+            </motion.div>
+          </motion.div>
         )}
       </section>
     </Wrapper>
