@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { LoadingSpinner } from "@/components/inventory/LoadingSpinner";
+import { InventoryLoadingSpinner } from "@/components/inventory/InventoryLoadingSpinner";
 import { useInventorySession } from "@/components/inventory/useInventorySession";
 
 export default function InventoryProductsPage() {
@@ -138,11 +138,11 @@ export default function InventoryProductsPage() {
   };
 
   if (loading) {
-    return <LoadingSpinner />;
+    return <InventoryLoadingSpinner />;
   }
 
   if (fetching) {
-    return <LoadingSpinner />;
+    return <InventoryLoadingSpinner />;
   }
 
   if (!authenticated) {

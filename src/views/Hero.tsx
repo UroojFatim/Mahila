@@ -1,135 +1,104 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React from "react";
+import Link from "next/link";
 import Image from "next/image";
-// Desktop images
-import desktopHero1 from "../../public/hero/hero_desktop_1.png";
-import desktopHero2 from "../../public/hero/hero_desktop_2.png";
-import desktopHero3 from "../../public/hero/hero_desktop_3.png";
-// Mobile images
-import mobileHero1 from "../../public/hero/hero_mobile_1.png";
-import mobileHero2 from "../../public/hero/hero_mobile_2.png";
-import mobileHero3 from "../../public/hero/hero_mobile_3.png";
+import { motion } from "framer-motion";
+import { EASE } from "@/components/motion/variants";
 
-const desktopSlides = [
-  { src: desktopHero1, alt: "Mahila collection slide 1" },
-  { src: desktopHero2, alt: "Mahila collection slide 2" },
-  { src: desktopHero3, alt: "Mahila collection slide 3" },
-];
+const container = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.12, delayChildren: 0.1 } },
+};
 
-const mobileSlides = [
-  { src: mobileHero1, alt: "Mahila collection slide 1" },
-  { src: mobileHero2, alt: "Mahila collection slide 2" },
-  { src: mobileHero3, alt: "Mahila collection slide 3" },
-];
+const item = {
+  hidden: { opacity: 0, y: 22 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: EASE } },
+};
 
 const Hero = () => {
-  const [index, setIndex] = useState(0);
-  const [isMobile, setIsMobile] = useState(false);
-
-  // Detect if screen is mobile
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768); // md breakpoint
-    };
-
-    checkMobile();
-    window.addEventListener("resize", checkMobile);
-    return () => window.removeEventListener("resize", checkMobile);
-  }, []);
-
-  const slides = isMobile ? mobileSlides : desktopSlides;
-  const maxIndex = useMemo(() => Math.max(0, slides.length - 1), [slides]);
-
-  useEffect(() => {
-    const t = setInterval(() => {
-      setIndex((prev) => (prev >= maxIndex ? 0 : prev + 1));
-    }, 6000);
-    return () => clearInterval(t);
-  }, [maxIndex]);
-
-  const goToSlide = (nextIndex: number) => {
-    if (maxIndex === 0) {
-      return;
-    }
-    setIndex(nextIndex);
-  };
-
-  const goPrev = () => {
-    if (maxIndex === 0) {
-      return;
-    }
-    setIndex((prev) => (prev <= 0 ? maxIndex : prev - 1));
-  };
-
-  const goNext = () => {
-    if (maxIndex === 0) {
-      return;
-    }
-    setIndex((prev) => (prev >= maxIndex ? 0 : prev + 1));
-  };
-
   return (
-    <section className="relative w-full h-screen md:h-full md:min-h-[800px]">
-      <div className="absolute inset-0 z-0">
-        <div className="overflow-hidden h-full">
-          <div
-            className="flex h-full transition-transform duration-700 ease-in-out"
-            style={{ transform: `translateX(-${index * 100}%)` }}
-          >
-            {slides.map((slide, slideIndex) => (
-              <div
-                key={slide.alt}
-                className="relative h-full flex-[0_0_100%]"
-                aria-label={`Slide ${slideIndex + 1}`}
-              >
-                <Image
-                  src={slide.src}
-                  alt={slide.alt}
-                  fill
-                  priority={slideIndex === 0}
-                  className="object-cover object-top md:object-top"
-                  sizes="100vw"
-                />
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-      <div className="absolute inset-y-0 left-3 right-3 z-10 flex items-center justify-between pointer-events-none">
-        <button
-          type="button"
-          onClick={goPrev}
-          className="pointer-events-auto h-9 w-9 rounded-full border border-white/70 bg-black/30 text-white transition hover:bg-black/50"
-          aria-label="Previous slide"
+    <section className="max-w-screen-2xl mx-auto px-6 md:px-10 lg:px-12 py-14 lg:py-16 grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-14 items-center overflow-hidden">
+      {/* Left: copy */}
+      <motion.div initial="hidden" animate="visible" variants={container}>
+        <motion.div
+          variants={item}
+          className="text-[13px] tracking-[0.18em] text-olive-light uppercase mb-4"
         >
-          <span aria-hidden="true">&#8249;</span>
-        </button>
-        <button
-          type="button"
-          onClick={goNext}
-          className="pointer-events-auto h-9 w-9 rounded-full border border-white/70 bg-black/30 text-white transition hover:bg-black/50"
-          aria-label="Next slide"
+          Autumn Edit · 2026
+        </motion.div>
+        <motion.h1
+          variants={item}
+          className="font-serif text-4xl sm:text-5xl lg:text-[56px] leading-[1.08] text-ink mb-5"
         >
-          <span aria-hidden="true">&#8250;</span>
-        </button>
-      </div>
-      <div className="absolute inset-x-0 bottom-6 z-10 flex items-center justify-center gap-2">
-        {slides.map((slide, slideIndex) => (
-          <button
-            key={`${slide.alt}-dot`}
-            type="button"
-            onClick={() => goToSlide(slideIndex)}
-            className={`h-2.5 w-2.5 rounded-full border transition-all duration-300 ${
-              slideIndex === index
-                ? "bg-white border-white scale-110"
-                : "bg-transparent border-white/70 hover:bg-white/60"
-            }`}
-            aria-label={`Go to slide ${slideIndex + 1}`}
-            aria-current={slideIndex === index}
+          Quiet elegance,
+          <br />
+          <span className="italic text-olive">worn daily.</span>
+        </motion.h1>
+        <motion.p
+          variants={item}
+          className="text-base lg:text-[17px] leading-relaxed text-ink/60 max-w-[420px] mb-8"
+        >
+          Considered silhouettes and natural fabrics, designed for women who
+          dress with intention. Small batches, made to last seasons — not
+          weeks.
+        </motion.p>
+        <motion.div variants={item} className="flex flex-wrap gap-4">
+          <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
+            <Link
+              href="/all-products"
+              className="inline-flex items-center justify-center bg-ink text-cream px-8 py-3.5 text-[13px] tracking-[0.08em] uppercase transition-colors hover:bg-olive"
+            >
+              Shop Women
+            </Link>
+          </motion.div>
+          <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
+            <Link
+              href="/virtual-try-on"
+              className="inline-flex items-center justify-center border border-ink text-ink px-8 py-3.5 text-[13px] tracking-[0.08em] uppercase transition-colors hover:border-olive hover:text-olive"
+            >
+              See AI Try-On
+            </Link>
+          </motion.div>
+        </motion.div>
+      </motion.div>
+
+      {/* Right: olive gradient panel */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.94, x: 24 }}
+        animate={{ opacity: 1, scale: 1, x: 0 }}
+        transition={{ duration: 0.9, ease: EASE, delay: 0.15 }}
+        className="relative h-[380px] sm:h-[460px] lg:h-[520px]"
+      >
+        <motion.div
+          animate={{ y: [0, -10, 0] }}
+          transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute inset-0"
+        >
+          <Image
+            src="/home-hero.png"
+            alt="Mahila hero"
+            fill
+            priority
+            sizes="(min-width: 1024px) 50vw, 100vw"
+            className="object-cover"
           />
-        ))}
-      </div>
+        </motion.div>
+        <motion.div
+          initial={{ opacity: 0, y: 24, x: -12 }}
+          animate={{ opacity: 1, y: 0, x: 0 }}
+          transition={{ duration: 0.7, ease: EASE, delay: 0.6 }}
+          whileHover={{ y: -4 }}
+          className="absolute left-0 sm:-left-7 bottom-6 sm:bottom-[-28px] bg-cream border border-hairline p-6 max-w-[230px] shadow-lg"
+        >
+          <div className="font-script text-xl text-olive mb-1">
+            New Arrivals
+          </div>
+          <div className="text-[13px] text-ink/70 leading-relaxed">
+            The Linen Edit — breathable layers for warm days.
+          </div>
+        </motion.div>
+      </motion.div>
     </section>
   );
 };

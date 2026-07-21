@@ -1,16 +1,20 @@
 import Hero from "@/views/Hero";
-import LuxuryCollection from "@/views/LuxuryCollection";
-import ImageSection from "@/views/ImageSection";
-import EthnicCollection from "@/views/EthnicCollection";
 import ShopByCollection from "@/views/ShopByCollection";
 import Collections from "@/views/Collections";
-import AfsanaShowcase from "@/views/AfsanaShowcase";
+import USPStrip from "@/views/USPStrip";
+import FeaturedProducts from "@/views/FeaturedProducts";
+import WhyMahila from "@/views/WhyMahila";
+import EditorialBanner from "@/views/EditorialBanner";
+import CountdownBanner from "@/views/CountdownBanner";
+import FAQ from "@/views/FAQ";
+import Newsletter from "@/views/Newsletter";
 import { getDatabase } from "@/lib/mongodb";
 
 type CollectionItem = {
   _id?: string;
   name: string;
   slug: string;
+  image?: string | null;
 };
 
 type ProductItem = {
@@ -73,6 +77,35 @@ const getCollections = async () => {
   return serializeCollections(collections);
 };
 
+const getFirstProductImage = (product: ProductItem): string | null => {
+  const direct = product.images?.find((img) => img?.url)?.url;
+  if (direct) return direct;
+  const variantImage = product.variants
+    ?.flatMap((variant) => variant.images || [])
+    .find((img) => img?.url)?.url;
+  return variantImage || null;
+};
+
+const withCollectionImages = (
+  collections: CollectionItem[],
+  products: ProductItem[],
+): CollectionItem[] =>
+  collections.map((collection) => {
+    const match = products.find((product) => {
+      const bySlug =
+        product.collectionSlug &&
+        product.collectionSlug.toLowerCase() === collection.slug.toLowerCase();
+      const byName =
+        product.collection &&
+        product.collection.toLowerCase() === collection.name.toLowerCase();
+      return bySlug || byName;
+    });
+    return {
+      ...collection,
+      image: match ? getFirstProductImage(match) : null,
+    };
+  });
+
 const getAllProducts = async () => {
   const db = await getDatabase();
   const products = await db
@@ -85,79 +118,28 @@ const getAllProducts = async () => {
   return serializeProducts(products);
 };
 
-const getProductsByCollection = async (collectionSlug: string) => {
-  const db = await getDatabase();
-  const products = await db
-    .collection("inventory_products")
-    .find({
-      $and: [
-        {
-          $or: [{ displayOnWebsite: { $exists: false } }, { displayOnWebsite: true }],
-        },
-        {
-          $or: [
-            { collectionSlug },
-            { collectionSlug: collectionSlug.toLowerCase() },
-            { collection: collectionSlug },
-            { collection: new RegExp(collectionSlug, "i") },
-          ],
-        },
-      ],
-    })
-    .sort({ createdAt: -1 })
-    .toArray();
-  return serializeProducts(products);
-};
-
 export default async function Home() {
-  const [collections, products, luxuryProducts, ethnicProducts] =
-    await Promise.all([
-      getCollections(),
-      getAllProducts(),
-      getProductsByCollection("luxury-collection"),
-      getProductsByCollection("virasat-collection"),
-    ]);
+  const [collections, products] = await Promise.all([
+    getCollections(),
+    getAllProducts(),
+  ]);
+
+  const collectionsWithImages = withCollectionImages(collections, products);
 
   return (
     <section>
       <Hero></Hero>
-      {/* <Promotions></Promotions> */}
-      {/* <ShopByCollection
-        initialCollections={collections}
-        initialProducts={products}
-      /> */}
-      <Collections initialCollections={collections} />
-      <ImageSection
-        desktopSrc="/hero/virasatcollectiondesktop.png"
-        mobileSrc="/hero/virasatcollectionmobile.png"
-        alt="Hero Section 1"
-        collectionName="Virasat Collection"
-        collectionSlug="virasat-collection"
-        shopNow={true}
-      />
-      <EthnicCollection initialProducts={ethnicProducts} />
-      <ImageSection
-        desktopSrc="/hero/luxurycollectiondesktop.png"
-        mobileSrc="/hero/luxurycollectionmobile.png"
-        alt="Hero Section 2"
-        collectionName="Luxury Collection"
-        collectionSlug="luxury-collection"
-        shopNow={true}
-      />
-      <LuxuryCollection initialProducts={luxuryProducts} />
-      <ImageSection
-        desktopSrc="/hero/kalaamcollectiondesktop.png"
-        mobileSrc="/hero/kalaamcollectionmobile.png"
-        alt="Hero Section 3"
-        collectionName="Kalaam Collection"
-        collectionSlug="kalaam-collection"
-        shopNow={true}
-      />
-      <AfsanaShowcase />
+      <Collections initialCollections={collectionsWithImages} />
+      <FeaturedProducts products={products} />
+      <USPStrip />
+      <WhyMahila />
+      <EditorialBanner />
+      <CountdownBanner />
       {/* <SufiCollection /> */}
       {/* <VideoTextSection></VideoTextSection> */}
       {/* <DifferentFromOthers></DifferentFromOthers> */}
-      {/* <Newsletter></Newsletter> */}
+      <FAQ />
+      <Newsletter />
     </section>
   );
 }

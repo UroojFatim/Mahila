@@ -5,6 +5,7 @@ import React, { useRef, useState } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
 import { X, Upload, Sparkles, Download, Loader2, Clock } from "lucide-react";
 import { toast } from "react-toastify";
+import { motion, AnimatePresence } from "framer-motion";
 
 type Props = {
   open: boolean;
@@ -109,8 +110,8 @@ const VirtualTryOnModal = ({ open, onOpenChange, garmentUrl, productTitle }: Pro
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-50 bg-black/50 data-[state=open]:animate-in data-[state=open]:fade-in-0" />
-        <Dialog.Content className="fixed left-1/2 top-1/2 z-50 w-[95vw] max-w-3xl max-h-[92vh] -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-2xl bg-white p-5 sm:p-6 shadow-xl focus:outline-none">
+        <Dialog.Overlay className="fixed inset-0 z-50 bg-black/50 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
+        <Dialog.Content className="fixed left-1/2 top-1/2 z-50 w-[95vw] max-w-3xl max-h-[92vh] -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-2xl bg-white p-5 sm:p-6 shadow-xl focus:outline-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 duration-300">
           <div className="flex items-start justify-between gap-4">
             <div>
               <Dialog.Title className="flex items-center gap-2 text-lg sm:text-xl font-bold text-[#861010]">
@@ -162,16 +163,32 @@ const VirtualTryOnModal = ({ open, onOpenChange, garmentUrl, productTitle }: Pro
             </figure>
             <figure className="text-center">
               <div className="relative h-72 w-full rounded-lg bg-gray-50 overflow-hidden flex items-center justify-center">
-                {loading ? (
-                  <div className="flex flex-col items-center gap-2 text-gray-500 px-2 text-center">
-                    <Loader2 className="h-6 w-6 animate-spin" />
-                    <span className="text-xs">{statusMsg || "Generating…"}</span>
-                  </div>
-                ) : result ? (
-                  <img src={result} alt="Try-on result" className="h-full w-full object-contain" />
-                ) : (
-                  <span className="text-xs text-gray-400 px-2 text-center">Your try-on result appears here</span>
-                )}
+                <AnimatePresence mode="wait">
+                  {loading ? (
+                    <motion.div
+                      key="loading"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      className="flex flex-col items-center gap-2 text-gray-500 px-2 text-center"
+                    >
+                      <Loader2 className="h-6 w-6 animate-spin" />
+                      <span className="text-xs">{statusMsg || "Generating…"}</span>
+                    </motion.div>
+                  ) : result ? (
+                    <motion.img
+                      key="result"
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                      src={result}
+                      alt="Try-on result"
+                      className="h-full w-full object-contain"
+                    />
+                  ) : (
+                    <span key="empty" className="text-xs text-gray-400 px-2 text-center">Your try-on result appears here</span>
+                  )}
+                </AnimatePresence>
               </div>
               <figcaption className="mt-1 text-xs text-gray-500">Result</figcaption>
             </figure>
@@ -179,14 +196,16 @@ const VirtualTryOnModal = ({ open, onOpenChange, garmentUrl, productTitle }: Pro
 
           {/* Actions */}
           <div className="mt-5 flex flex-col sm:flex-row gap-3">
-            <button
+            <motion.button
+              whileHover={{ scale: loading ? 1 : 1.03 }}
+              whileTap={{ scale: loading ? 1 : 0.97 }}
               onClick={runTryOn}
               disabled={loading}
               className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#861010] px-5 py-3 text-sm font-bold text-white shadow hover:bg-[#6e0d0d] disabled:opacity-60"
             >
               {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
               {loading ? "Generating…" : "Try It On"}
-            </button>
+            </motion.button>
             {result && (
               <a
                 href={result}
@@ -207,8 +226,8 @@ const VirtualTryOnModal = ({ open, onOpenChange, garmentUrl, productTitle }: Pro
       {/* AI service unavailable notice */}
       <Dialog.Root open={serviceDownOpen} onOpenChange={setServiceDownOpen}>
         <Dialog.Portal>
-          <Dialog.Overlay className="fixed inset-0 z-[60] bg-black/50 data-[state=open]:animate-in data-[state=open]:fade-in-0" />
-          <Dialog.Content className="fixed left-1/2 top-1/2 z-[60] w-[90vw] max-w-sm -translate-x-1/2 -translate-y-1/2 rounded-2xl bg-white p-6 shadow-xl focus:outline-none">
+          <Dialog.Overlay className="fixed inset-0 z-[60] bg-black/50 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
+          <Dialog.Content className="fixed left-1/2 top-1/2 z-[60] w-[90vw] max-w-sm -translate-x-1/2 -translate-y-1/2 rounded-2xl bg-white p-6 shadow-xl focus:outline-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 duration-300">
             <div className="flex flex-col items-center text-center">
               <div className="flex h-12 w-12 items-center justify-center rounded-full bg-amber-50">
                 <Clock className="h-6 w-6 text-amber-600" />
