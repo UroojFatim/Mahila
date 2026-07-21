@@ -1,6 +1,6 @@
 import Wrapper from "@/components/shared/Wrapper";
 import ProductDetails from "@/components/ProductDetails";
-import { getProductBySlug } from "@/lib/db/seo";
+import { getProductBySlug, getRelatedProducts } from "@/lib/db/productQueries";
 import {
   BRAND_NAME,
   DEFAULT_DESCRIPTION,
@@ -137,6 +137,11 @@ export default async function Page({
   const collectionUrl = foundData.collectionSlug
     ? `${SITE_URL}/collection/${foundData.collectionSlug}`
     : SITE_URL;
+  const relatedProducts = await getRelatedProducts(
+    foundData.collectionSlug,
+    foundData.slug,
+    4,
+  );
 
   const breadcrumbSchema = {
     "@context": "https://schema.org",
@@ -207,8 +212,8 @@ export default async function Page({
           __html: JSON.stringify(productSchema),
         }}
       />
-      <div className="pt-10 lg:pt-20">
-        <ProductDetails foundData={foundData} />
+      <div className="pt-6 lg:pt-10">
+        <ProductDetails foundData={foundData} relatedProducts={relatedProducts} />
       </div>
     </Wrapper>
   );

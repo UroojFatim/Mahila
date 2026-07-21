@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import Wrapper from "@/components/shared/Wrapper";
-import LoadingSpinner from "@/components/LoadingSpinner";
+import DotsLoadingSpinner from "@/components/DotsLoadingSpinner";
 
 type CollectionItem = {
   _id?: string;
@@ -121,7 +121,7 @@ export default function ShopByCollection({
   }, [hasInitialData]);
 
   if (loading) {
-    return <LoadingSpinner />;
+    return <DotsLoadingSpinner />;
   }
 
   if (!collections.length) {

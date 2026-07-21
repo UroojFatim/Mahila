@@ -2,7 +2,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import LoadingSpinner from "@/components/LoadingSpinner";
+import DotsLoadingSpinner from "@/components/DotsLoadingSpinner";
 import Link from "next/link";
 
 interface MovingProductsProps {
@@ -196,7 +196,7 @@ export default function MovingProducts({
   const next = () => setIndex((p) => (p >= maxIndex ? 0 : p + 1));
 
   if (loading) {
-    return <LoadingSpinner />;
+    return <DotsLoadingSpinner />;
   }
 
   if (!styleItems.length && !showVideos) {
